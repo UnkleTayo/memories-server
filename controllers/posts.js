@@ -21,6 +21,7 @@ export const createPost = async (req, res) => {
     res.status(490).json({ message: err.message });
   }
 };
+
 export const updatePost = async (req, res) => {
   const { id: _id } = req.params;
   const post = req.body;
