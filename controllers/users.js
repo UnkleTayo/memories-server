@@ -1,12 +1,13 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-
+import Joi from 'joi';
 import User from '../models/user.js';
+
 dotenv.config();
 
 export const signin = async (req, res) => {
-  // destructure email from body
+  // destructuring email from body
   const { email, password } = req.body;
 
   try {
@@ -16,12 +17,15 @@ export const signin = async (req, res) => {
     // check if doesnt exist
     if (!existingUser)
       return res.status(404).json({ message: 'User does not exist' });
+    console.log(existingUser.password);
 
     // validating passowrd if tey match
     const isPasswordCorrect = await bcrypt.compare(
       password,
       existingUser.password
     );
+
+    console.log(isPasswordCorrect);
     // return error message
     if (!isPasswordCorrect)
       return res.status(404).json({ message: 'Invalid credentials' });
@@ -41,8 +45,11 @@ export const signin = async (req, res) => {
 
 export const signup = async (req, res) => {
   const { email, password, firstName, lastName, confirmPassword } = req.body;
+  // console.log(req.body);
   try {
-    // check if the user already exists
+    const { error } = validateUserInput(req.body);
+    if (error) return res.status(429).send(error.details[0].message);
+    // const { error, value } = await schema.validate({ email });
     const existingUser = await User.findOne({ email });
 
     if (existingUser)
@@ -53,7 +60,7 @@ export const signup = async (req, res) => {
 
     // Encrypting password
     const hashedPassword = await bcrypt.hash(password, 12);
-
+    console.log(hashedPassword);
     const result = await User.create({
       email,
       password: hashedPassword,
@@ -69,8 +76,19 @@ export const signup = async (req, res) => {
       }
     );
 
-    res.status(200).json({ messge: 'User', result, token });
+    res.status(201).json({ message: 'User', result, token });
   } catch (error) {
     res.status(500).json({ message: 'Something went wrong' });
   }
 };
+
+function validateUserInput(user) {
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+    confirmPassword: Joi.ref('password'),
+  });
+  return schema.validate(user);
+}
