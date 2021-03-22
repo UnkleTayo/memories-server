@@ -1,4 +1,4 @@
-## Kora
+# Memories
 
 > Backend repository for Memories (web app).
 
