@@ -73,7 +73,6 @@ export const createPost = async (req, res) => {
   const newPostMessage = new PostMessage({
     ...post,
     creator: req.userId,
-    createdAt: new Date().toISOString(),
   });
 
   try {
@@ -138,11 +137,9 @@ export const commentPost = async (req, res) => {
     const { value } = req.body;
 
     const post = await PostMessage.findById(id);
-
     post.comments.push(value);
 
     const updatedPost = await PostMessage.findByIdAndUpdate(id, post, { new: true });
-
     res.json(updatedPost);
 };
 
