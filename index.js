@@ -14,18 +14,12 @@ app.use(express.json({ limit: '30mb', extended: true }));
 app.use(express.urlencoded({ limit: '30mb', extended: true }))
 
 
-const whiteList = ['http://localhost:3000/', 'http://example2.com']
-const corsOptionsDelegate = function (req, callback) {
-  let corsOptions;
-  if (whiteList.indexOf(req.header('Origin')) !== -1) {
-    corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
-  } else {
-    corsOptions = { origin: false } // disable CORS for this request
-  }
-  callback(null, corsOptions) // callback expects two parameters: error and options
-}
 
-app.use(cors(corsOptionsDelegate));
+
+app.use(cors({
+  origin: '*',
+  methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']
+}));
 
 // setup routes
 app.use('/posts', postRoutes);
