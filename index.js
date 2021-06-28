@@ -13,11 +13,13 @@ dotenv.config();
 app.use(express.json({ limit: '30mb', extended: true }));
 app.use(express.urlencoded({ limit: '30mb', extended: true }))
 
-const corsOptions = {
-  origin: 'http://localhost:3000',
-  optionsSuccessStatus:200
-}
-app.use(cors(corsOptions));
+
+
+
+app.use(cors({
+  origin: '*',
+  methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']
+}));
 
 // setup routes
 app.use('/posts', postRoutes);
